@@ -1,0 +1,48 @@
+name: Adminer & MySql pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+   mysql-adminer-setup:
+      runs-on: ubuntu-latest
+
+      services:
+        mysql:
+          image: mysql:latest
+          env:
+            MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+            MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+            MYSQL_USER: ${{ secrets.MYSQL_USER }}
+            MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          ports:
+            - 3306:3306
+          healthcheck:
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=3
+
+      adminer:
+        image: adminer:latest
+        ports:
+          - 8080:8080
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: MySql start
+        run: |
+        echo "Waiting for MySQL to start..."
+
+      - name: Run MySQL query
+        run: |
+        docker exec mysql mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;"
+
+      - name: Test Adminer connection
+        run: |
+        curl -f http://localhost:8080
+          

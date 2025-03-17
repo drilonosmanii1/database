@@ -19,11 +19,7 @@ jobs:
             MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           ports:
             - 3306:3306
-          healthcheck:
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=3
+          options: --health-cmd="mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD" --health-interval=10s --health-timeout=5s --health-retries=3
 
       adminer:
         image: adminer:latest
@@ -34,15 +30,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: MySql start
+      - name: Check MySQL is up and running
         run: |
-        echo "Waiting for MySQL to start..."
+          echo "Checking MySQL server"
+          mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD || exit 1
+
 
       - name: Run MySQL query
         run: |
-        docker exec mysql mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;"
+          docker exec mysql mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;"
 
-      - name: Test Adminer connection
+      - name: Adminer connection
         run: |
-        curl -f http://localhost:8080
+          curl -f http://localhost:8080
           

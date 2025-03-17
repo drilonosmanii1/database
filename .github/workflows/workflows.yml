@@ -1,46 +1,25 @@
-name: Adminer & MySql pipeline
+name: MySQL Docker Workflow
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  mysql-adminer-setup:
+  run-mysql:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      adminer:
-        image: adminer:latest
-        ports:
-          - 8080:8080
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Check MySQL is up and running
-        run: |
-          echo "Checking MySQL server"
-          mysqladmin ping -h localhost -u root -p$MYSQL_ROOT_PASSWORD || exit 1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
+    - name: Pull MySQL image
+      run: docker pull mysql:latest
 
-      - name: Run MySQL query
-        run: |
-          docker exec mysql mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;"
+    - name: Run MySQL container
+      run: |
+        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -d mysql:latest
 
-      - name: Adminer connection
-        run: |
-          curl -f http://localhost:8080
-          
+    - name: Verify MySQL container is running
+      run: docker ps -a

@@ -19,7 +19,7 @@ jobs:
 
     - name: Run MySQL container
       run: |
-       docker run --name ${{ secrets.MYSQL_USER }} -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} -d mysql:latestt
+       docker run --name ${{ secrets.MYSQL_USER }} -e MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} -d mysql:latest
 
     - name: Verify MySQL container is running
       run: docker ps -a

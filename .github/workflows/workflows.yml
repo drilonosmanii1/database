@@ -19,7 +19,7 @@ jobs:
 
     - name: Run MySQL container
       run: |
-        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -d mysql:latest
+        docker run --name drilondb -e MYSQL_ROOT_PASSWORD=root -d mysql:latest
 
     - name: Verify MySQL container is running
       run: docker ps -a

@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-   mysql-adminer-setup:
-      runs-on: ubuntu-latest
+  mysql-adminer-setup:
+    runs-on: ubuntu-latest
 
       services:
         mysql:
